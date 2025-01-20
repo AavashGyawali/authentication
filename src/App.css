@@ -1,0 +1,15 @@
+.character {
+    border: none;
+    font-size: 20px;
+    border-radius: 8px;
+   
+    /* light theme */
+    color: #272729;
+    background-color: #f6f5fa;
+    box-shadow: 0 2px 0 #e4e2f5;
+   
+    /* dark theme */
+    color: #fff;
+    background-color: #032c25;
+    box-shadow: 0 2px 0 #444;
+  }

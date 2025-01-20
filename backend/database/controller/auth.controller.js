@@ -47,9 +47,15 @@ export const signup = async (req, res) => {
     generateTokenAndSetCookies(res, user._id);
 
     await generateUserVerificationEmail(user.email, verificationToken);
-
+    
     // responsing with a message
-    res.status(201).json({ message: "User created successfully" });
+    res.status(201).json({
+      user: {
+        ...user._doc,
+        password: undefined
+      },
+      success:true,
+      message: "User created successfully" });
   } catch (error) {
     console.log("The error of auth controller is: ", error);
   }
@@ -156,7 +162,7 @@ export const logout = async (req, res) => {
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   const resetToken = crypto.randomBytes(20).toString("hex");
-  const resetURL = `${process.env.LOCAL_ENDPOINT}/api/auth/reset-password/${resetToken}`;
+  const resetURL = `${process.env.LOCAL_ENDPOINT}/reset-password/${resetToken}`;
 
   try {
     const user = await User.findOne({ email });
@@ -171,7 +177,7 @@ export const forgotPassword = async (req, res) => {
     await passwordResetRequest(user.email, resetURL);
     res.status(200).json({ message: "Succesfully done" });
   } catch (error) {
-    console.log(error);
+    console.log(error); 
     res
       .status(400)
       .json({ message: `Error occured at forgot password with ${error}` });
@@ -184,8 +190,8 @@ export const forgotPassword = async (req, res) => {
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
-    const { newPassword } = req.body;
-    console.log(token,newPassword)
+    const { password } = req.body;
+    console.log(token,password)
 
     const user = await User.findOne({
       resetPasswordToken: token,
@@ -195,7 +201,7 @@ export const resetPassword = async (req, res) => {
       res.status(400).json({ message: "Token is not valid" });
     }
     
-    const hashedPassword= await bcryptjs.hash(newPassword,10);
+    const hashedPassword= await bcryptjs.hash(password,10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresAt = undefined;
     user.password = hashedPassword;
